@@ -1,7 +1,8 @@
 #summary The Readme of ShowMiiWads
 #labels Featured
 
-ShowMiiWads is a 'WAD File Manager' for Windows.<br>
+*ShowMiiWads is a 'WAD File Manager' for Windows.*<br>
+
 It is licensed under GNU GPL v2, for further information scroll down to "License"<br>
 The .NET-Framework 2.0 is required to run this application!<br>
 The (Common-)Key.bin is required for most features (Can be created using Tools -> Create Common-Key)<br>
@@ -109,7 +110,7 @@ ShowMiiWads is free software; you can redistribute it and/or<br>
 modify it under the terms of the GNU General Public License<br>
 as published by the Free Software Foundation; either version 2<br>
 of the License, or (at your option) any later version.<br>
- <br>
+<br>
 ShowMiiWads is distributed in the hope that it will be useful,<br>
 but WITHOUT ANY WARRANTY; without even the implied warranty of<br>
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
