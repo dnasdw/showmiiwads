@@ -75,7 +75,7 @@ want to have your translation included into the application, contact me..<br>
 	* Rename Wad files
 	* Delete Wad files
 	* Multilanguage (English + German)
-	* .NET Framework 3.5 needed for full funcionality
+	* .NET Framework 3.5 needed for full functionality
 -----------------------------------------------------------------------------------------
 <br>
 -----------------------------------------------------------------------------------------
