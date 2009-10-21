@@ -1,4 +1,7 @@
-==hangelog of ShowMiiWads:=
+#summary Just the Changelog of ShowMiiWads
+#labels Featured
+
+==Changelog of ShowMiiWads:=
 
 ===Version 1.1===
 	* 64 bit Version is now available
