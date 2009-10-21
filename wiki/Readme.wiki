@@ -1,4 +1,5 @@
 #summary The Readme (including Changelog) of ShowMiiWads
+#labels Featured
 
 *ShowMiiWads is a 'WAD File Manager' for Windows.*<br>
 
@@ -13,6 +14,10 @@ want to have your translation included into the application, contact me..<br>
 <br>
 -----------------------------------------------------------------------------------------
 ==Changelog:==
+
+===Version 1.1b===
+	* Fixed a bug with slang files, so external translations can be loaded again
+	* Fixed crashes caused by old ShowMiiWads.cfg Files
 
 ===Version 1.1===
 	* 64 bit Version is now available

@@ -1,6 +1,11 @@
 #summary Just the Changelog of ShowMiiWads
+#labels Featured
 
 ==Changelog of ShowMiiWads:=
+
+===Version 1.1b===
+	* Fixed a bug with slang files, so external translations can be loaded again
+	* Fixed crashes caused by old ShowMiiWads.cfg Files
 
 ===Version 1.1===
 	* 64 bit Version is now available
