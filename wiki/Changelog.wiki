@@ -1,19 +1,4 @@
-#summary The Readme (including Changelog) of ShowMiiWads
-#labels Featured
-
-*ShowMiiWads is a 'WAD File Manager' for Windows.*<br>
-
-It is licensed under GNU GPL v2, for further information scroll down to "License"<br>
-The .NET-Framework 2.0 is required to run this application!<br>
-The (Common-)Key.bin is required for most features (Can be created using Tools -> Create Common-Key)<br>
-<br>
-For further information, if you've suggestions, found bugs or anything else,<br>
-visit: http://showmiiwads.googlecode.com/<br>
-You can simply translate the application by editing the example.slang, if you<br>
-want to have your translation included into the application, contact me..<br>
-<br>
------------------------------------------------------------------------------------------
-==Changelog:==
+==hangelog of ShowMiiWads:=
 
 ===Version 1.1===
 	* 64 bit Version is now available
@@ -94,51 +79,3 @@ want to have your translation included into the application, contact me..<br>
 	* Delete Wad files
 	* Multilanguage (English + German)
 	* .NET Framework 3.5 needed for full functionality
------------------------------------------------------------------------------------------
-<br>
------------------------------------------------------------------------------------------
-==Disclaimer:==
-
-Editing WAD files can result in a brick of your Wii.<br>
-Only use these features if you have a bricksafe Wii, meaning either Preloader or<br>
-BootMii/boot2 is installed, and if you know what you're doing.<br>
-Also, your Wad files could be destroyed, so be sure to have a backup.<br>
-<br>
-This application comes without any express or implied warranty.<br>
-The author can't be held responsible for any damages arising from the use of it.
------------------------------------------------------------------------------------------
-<br>
------------------------------------------------------------------------------------------
-==Thanks:==
-
-Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py (which was the base for TPL conversion)<br>
-SquidMan for Zetsubou (which was a reference for TPL conversion)<br>
-Andre Perrot for gbalzss (which was the base for LZ77 decompression)<br>
-NeoRame for the Logo + Icon<br>
-Blitzur, kedest, nutta_nic, Dteyn and acesniper for Betatesting<br>
-carbonyle and Cyan for French translation<br>
-Tetsuo Shima for Italian translation<br>
-putifruti for Spanish translation<br>
-pesaroso for Norwegian translation<br>
-Everyone for using this application
------------------------------------------------------------------------------------------
-<br>
------------------------------------------------------------------------------------------
-==License:==
-
-Copyright (C) 2009 Leathl<br>
-<br>
-ShowMiiWads is free software; you can redistribute it and/or<br>
-modify it under the terms of the GNU General Public License<br>
-as published by the Free Software Foundation; either version 2<br>
-of the License, or (at your option) any later version.<br>
-<br>
-ShowMiiWads is distributed in the hope that it will be useful,<br>
-but WITHOUT ANY WARRANTY; without even the implied warranty of<br>
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
-GNU General Public License for more details.<br>
-<br>
-You should have received a copy of the GNU General Public License<br>
-along with this program; if not, write to the Free Software<br>
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
------------------------------------------------------------------------------------------
