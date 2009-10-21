@@ -1,16 +1,12 @@
 #summary Just the Changelog of ShowMiiWads
-#labels Featured
 
 ==Changelog of ShowMiiWads:=
 
 ===Version 1.1===
 	* 64 bit Version is now available
-	* Improved speed. Now, information is loaded at application startup and saved in a file.
-	  Whenever it reloads, the information is read out of the file, only new files are
-	  added. If you need to completely refresh the whole list, use 'File -> Refresh' (F5).
-	  When the language is changed, only the Channel Titles column will be reloaded
-	* Multiple selections are now possible. If you want to select a whole folder,
-	  just left click the header once.
+	* Improved speed. Now, information is loaded at application startup and saved in a file. Whenever it reloads, the information is read out of the file, only new files are added. If you need to completely refresh the whole list, use 'File -> Refresh' (F5).
+	* When the language is changed, only the Channel Titles column will be reloaded
+	* Multiple selections are now possible. If you want to select a whole folder, just left click the header once.
 	* Added Splash Screen with ProgressBar to show the loading status (can be disabled)
 	* Added Option to remove all folders
 	* Added Option to refresh single folders
