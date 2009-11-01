@@ -271,15 +271,24 @@ namespace UltimateU8
             {
                 tvU8.BeginUpdate();
                 int index = 1;
+                bool exists = false;
+                string newfolder = "";
 
-                for (int i = 0; i < tvU8.SelectedNode.Nodes.Count; i++)
+                do
                 {
-                    if (tvU8.SelectedNode.Nodes[i].Text.Contains("New Folder"))
+                    newfolder = "New Folder" + index.ToString();
+                    exists = false;
+
+                    for (int i = 0; i < tvU8.SelectedNode.Nodes.Count; i++)
                     {
-                        int thisindex = int.Parse(tvU8.SelectedNode.Nodes[i].Text.Substring(tvU8.SelectedNode.Nodes[i].Text.Length - 1));
-                        if (thisindex >= index) index = thisindex + 1;
+                        if (tvU8.SelectedNode.Nodes[i].Text == newfolder)
+                        {
+                            index++;
+                            exists = true;
+                        }
                     }
-                }
+
+                } while (exists == true);
 
                 Directory.CreateDirectory(TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4) + "\\New Folder" + index.ToString());
 
