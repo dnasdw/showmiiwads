@@ -1,19 +1,18 @@
-﻿/* This file is part of the Wii.cs Tools
+﻿/* This file is part of Wii.cs Tools
  * Copyright (C) 2009 Leathl
  * 
- * Wii.cs Tools is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * Wii.cs Tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Wii.cs Tools is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wii.cs Tools is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -35,6 +34,162 @@ namespace Wii.cs_Tools
             InitializeComponent();
             this.CenterToScreen();
             this.Icon = global::Wii.Properties.Resources.Wii_cs;
+        }
+
+        public U8Mii_Main(string[] args)
+        {
+            InitializeComponent();
+            this.ShowInTaskbar = false;
+            this.WindowState = FormWindowState.Minimized;
+
+            string input = string.Empty;
+            string output = string.Empty;
+            bool lz77 = false;
+            bool imd5 = false;
+            bool imet = false;
+            string title = string.Empty;
+            string[] langtitle = new string[7];
+            bool pack = true;
+
+            try
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    switch (args[i])
+                    {
+                        case "-input":
+                            input = args[i + 1];
+                            break;
+                        case "-output":
+                            output = args[i + 1];
+                            break;
+                        case "-in":
+                            input = args[i + 1];
+                            break;
+                        case "-out":
+                            output = args[i + 1];
+                            break;
+                        case "-imd5":
+                            imd5 = true;
+                            break;
+                        case "-imet":
+                            imet = true;
+                            break;
+                        case "-lz77":
+                            lz77 = true;
+                            break;
+                        case "-title":
+                            title = args[i + 1];
+                            break;
+                        case "-jap":
+                            langtitle[0] = args[i + 1];
+                            break;
+                        case "-eng":
+                            langtitle[1] = args[i + 1];
+                            break;
+                        case "-ger":
+                            langtitle[2] = args[i + 1];
+                            break;
+                        case "-fra":
+                            langtitle[3] = args[i + 1];
+                            break;
+                        case "-ita":
+                            langtitle[4] = args[i + 1];
+                            break;
+                        case "-spa":
+                            langtitle[5] = args[i + 1];
+                            break;
+                        case "-dut":
+                            langtitle[6] = args[i + 1];
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorBox(ex.Message);
+                Environment.Exit(0);
+            }
+
+            if (!string.IsNullOrEmpty(input) && !string.IsNullOrEmpty(output))
+            {
+                if (imd5 == true && imet == true)
+                {
+                    ErrorBox("You can't attach more than one Header!");
+                    Environment.Exit(0);
+                }
+
+                if (File.Exists(input))
+                    pack = false;
+                else if (Directory.Exists(input))
+                    pack = true;
+                else
+                {
+                    ErrorBox("The input doesn't exist!");
+                    Environment.Exit(0);
+                }
+
+                if (imet == true)
+                {
+                    for (int j = 0; j < langtitle.Length; j++)
+                    {
+                        if (string.IsNullOrEmpty(langtitle[j])) langtitle[j] = title;
+                    }
+                    for (int y = 0; y < langtitle.Length; y++)
+                    {
+                        if (string.IsNullOrEmpty(langtitle[y]))
+                        {
+                            ErrorBox("You need to either specify a global Channel Title or one for each language to attach an IMET Header!");
+                            Environment.Exit(0);
+                        }
+                    }
+                }
+
+                if (pack == true)
+                {
+                    try
+                    {
+                        int[] sizes = new int[3];
+
+                        byte[] u8 = Wii.U8.PackU8(input, out sizes[0], out sizes[1], out sizes[2]);
+
+                        if (lz77 == true && imet == false) u8 = Wii.Lz77.Compress(u8);
+                        if (imd5 == true) u8 = Wii.U8.AddHeaderIMD5(u8);
+                        else if (imet == true) u8 = Wii.U8.AddHeaderIMET(u8, langtitle, sizes);
+
+                        Wii.Tools.SaveFileFromByteArray(u8, output);
+                        if (imet == true && (sizes[0] == 0 || sizes[1] == 0 || sizes[2] == 0))
+                            MessageBox.Show("Successfully packed U8 file\nHowever, note that this is no valid 00000000.app!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        else
+                            MessageBox.Show("Successfully packed U8 file", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex) { ErrorBox(ex.Message); }
+                }
+                else
+                {
+                    if (!Directory.Exists(output)) Directory.CreateDirectory(output);
+
+                    try
+                    {
+                        Wii.U8.UnpackU8(input, output);
+                        MessageBox.Show("Successfully unpacked U8", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex) { ErrorBox(ex.Message); }
+                }
+            }
+            else
+            {
+                ErrorBox("Please enter input and output files!");
+            }
+
+            Environment.Exit(0);
+        }
+
+        private void ErrorBox(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void SwitchOver()
@@ -224,12 +379,12 @@ namespace Wii.cs_Tools
                                     MessageBox.Show("Successfully packed U8 file", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                        catch (Exception ex) { ErrorBox(ex.Message); }
                     }
                 }
                 else
                 {
-                    MessageBox.Show("The directory doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ErrorBox("The directory doesn't exist");
                 }
             }
             else
@@ -239,7 +394,7 @@ namespace Wii.cs_Tools
 
                 if (File.Exists(u8file))
                 {
-                    if (!Directory.Exists(u8folder) || Directory.GetFiles(u8folder).Length > 0)
+                    if (!Directory.Exists(u8folder) || Directory.GetFiles(u8folder).Length < 1)
                     {
                         if (!Directory.Exists(u8folder)) Directory.CreateDirectory(u8folder);
 
@@ -248,16 +403,16 @@ namespace Wii.cs_Tools
                             Wii.U8.UnpackU8(u8file, u8folder);
                             MessageBox.Show("Successfully unpacked U8", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                        catch (Exception ex) { ErrorBox(ex.Message); }
                     }
                     else
                     {
-                        MessageBox.Show("The directory already exists or is not empty.\nPlease choose an empty folder", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ErrorBox("The directory already exists or is not empty.\nPlease choose an empty folder");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("The U8 file doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ErrorBox("The U8 file doesn't exist");
                 }
             }
         }
