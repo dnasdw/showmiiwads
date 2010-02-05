@@ -1,7 +1,10 @@
 These are the Wii.cs Tools, they're licensed under the terms of the GNU General Public License v2
 The .NET-Framework 2.0 is required to run these applications!
 
-Visit showmiiwads.googlecode.com where the Wii.cs Tools are hosted!
+The Tools are hosted on: http://showmiiwads.googlecode.com
+If you experience any problems, please use the ShowMiiWads Issue Tracker at: 
+http://code.google.com/p/showmiiwads/issues/list
+(note which tool gives you an error and what error of course)
 
 -----------------------------------------------------------------------------------------
 Tools:
@@ -12,6 +15,26 @@ UltimateU8 - Advanced U8 Editor
 TplMii - Converts images to Tpl and vice versa (including Tpl preview)
 Lz77Mii - Compresses and Decompresses files using the Lz77 algorithm
 DolMii - Inserts a new Dol file into a wad (Uses Waninkokos Nandloader)
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+Changelog:
+
+Version 0.3
+	- Note: License upgraded to GPL v3!
+	- Compiled with latest version of Wii.cs, this basically means several bugfixes
+	  initially made for CustomizeMii and ShowMiiWads
+
+Version 0.2
+	- Aded CLI (Command Line) Usage for all except UltimateU8 (see CLI.txt for usage)
+	- Added Tpl previewing to UltimateU8
+	- Added Auto-Header-Detection to UltimateU8. It will automatically select the
+	  Header of the file you opened, however, you can still change it if you want
+	- UltimateU8 will now temporarily save the Channel Titles, if you open 00.app's,
+	  so you don't need to type them again
+
+Version 0.1
+	- Initial Release
 -----------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------

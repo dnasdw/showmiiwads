@@ -1,0 +1,83 @@
+These are the CLI (Command Line) parameters for the Wii.cs Tools
+
+-----------------------------------------------------------------------------------------
+WadMii:
+-------
+
+	-input / -in input	(File or Directory)
+	-output / -out output	(File or Directory)
+
+Optional Packing Options:
+
+	-id XXXX 			(Changes Title ID; automatically Trucha-signs!)
+	-trucha / -sign			(Trucha-signs Tik and Tmd)
+
+You don't need to specify unpack or pack, it will be chosen automatically by checking
+if input is a file or directory.
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+U8Mii:
+------
+
+	-input / -in input 		(File or Directory)
+	-output / -out output 		(File or Directory)
+
+
+Optional Packing Options:
+
+	-imd5				(Adds IMD5 Header)
+	-imet				(Adds IMET Header)
+	-lz77				(Uses Lz77 Compression)
+	-title title			(General Title)
+
+	-jap title			(Language
+	-eng title			 specific
+	-ger title			 Titles;
+	-fra title			 will overwrite
+	-ita title			 general Title
+	-spa title			 for it's
+	-dut title			 language)
+
+You don't need to specify unpack or pack, it will be chosen automatically by checking
+if input is a file or directory.
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+TplMii:
+-------
+
+	-input / -in input 		(Tpl or Image)
+	-output / -out output 		(Tpl or Image)
+
+Optional To-Tpl-Conversion Options:
+
+	-rgba8				(Uses RGBA8 Format, Good Quality)
+	-rgb565				(Uses RGB565 Format, Moderate Quality)
+	-rgb5a3				(Uses RGB5A3 Format, Low Quality)
+
+If no format is chosen, RGBA8 will be used.
+
+You don't need to specify To-Tpl or From-Tpl, it will be chosen automatically by checking
+if input is a Tpl or Image.
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+Lz77Mii:
+--------
+
+	-input / -in input 		(File)
+	-output / -out output 		(File)
+
+	-pack / -compress		(Will compress)
+
+If you don't add -pack or -compress, it will decompress the input file.
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+DolMii:
+-------
+
+	-wad wadfile			(The Wad file where the new Dol will be inserted)
+	-dol dolfile			(The Dol to insert)
+-----------------------------------------------------------------------------------------

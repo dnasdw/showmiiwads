@@ -1,19 +1,18 @@
-﻿/* This file is part of the Wii.cs Tools
+﻿/* This file is part of Wii.cs Tools
  * Copyright (C) 2009 Leathl
  * 
- * Wii.cs Tools is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * Wii.cs Tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Wii.cs Tools is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wii.cs Tools is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -30,6 +29,148 @@ namespace Wii.cs_Tools
             InitializeComponent();
             this.CenterToScreen();
             this.Icon = global::Wii.Properties.Resources.Wii_cs;
+        }
+
+        public WadMii_Main(string[] args)
+        {
+            InitializeComponent(); 
+            this.ShowInTaskbar = false;
+            this.WindowState = FormWindowState.Minimized;
+
+            if (!File.Exists(Application.StartupPath + "\\common-key.bin") &&
+                !File.Exists(Application.StartupPath + "\\key.bin"))
+            {
+                ErrorBox("The common-key couldn't be found and\ncan't be created in CLI Mode!");
+                Environment.Exit(0);
+            }
+
+            bool trucha = false;
+            string id = "";
+            string input = "";
+            string output = "";
+
+            try
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    switch (args[i])
+                    {
+                        case "-input":
+                            input = args[i + 1];
+                            break;
+                        case "-output":
+                            output = args[i + 1];
+                            break;
+                        case "-in":
+                            input = args[i + 1];
+                            break;
+                        case "-out":
+                            output = args[i + 1];
+                            break;
+                        case "-id":
+                            id = args[i + 1].ToUpper();
+                            break;
+                        case "-trucha":
+                            trucha = true;
+                            break;
+                        case "-sign":
+                            trucha = true;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorBox(ex.Message);
+                Environment.Exit(0);
+            }
+
+            if (!string.IsNullOrEmpty(input) && !string.IsNullOrEmpty(output))
+            {
+                Regex allowedchars = new Regex("[A-Z0-9]{4}$");
+                if (!string.IsNullOrEmpty(id) && !allowedchars.IsMatch(id))
+                {
+                    ErrorBox("The Titled ID is invalid!");
+                    Environment.Exit(0);
+                }
+
+                if (Directory.Exists(input)) //pack
+                {
+                    string[] appfiles = Directory.GetFiles(input, "*.app");
+                    string[] certfile = Directory.GetFiles(input, "*.cert");
+                    string[] tikfile = Directory.GetFiles(input, "*.tik");
+                    string[] tmdfile = Directory.GetFiles(input, "*.tmd");
+
+                    if (appfiles.Length > 0 &&
+                        certfile.Length > 0 &&
+                        tikfile.Length > 0 &&
+                        tmdfile.Length > 0)
+                    {
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(id))
+                            {
+                                Wii.WadEdit.ChangeTitleID(tikfile[0], 0, id);
+                                Wii.WadEdit.ChangeTitleID(tmdfile[0], 1, id);
+                            }
+                            else if (trucha == true)
+                            {
+                                Wii.WadEdit.TruchaSign(tikfile[0], 0);
+                                Wii.WadEdit.TruchaSign(tmdfile[0], 1);
+                            }
+
+                            if (File.Exists(output)) File.Delete(output);
+                            Wii.WadPack.PackWad(input, output);
+                            MessageBox.Show("Successfully packed Wad", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (File.Exists(input)) File.Delete(output);
+                            ErrorBox(ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        ErrorBox("At least one file is missing, the Wad cannot be packed!");
+                    }
+                }
+                else if (File.Exists(input)) //unpack
+                {
+                    try
+                    {
+                        string[] appfiles = Directory.GetFiles(output, "*.app");
+                        string[] certfile = Directory.GetFiles(output, "*.cert");
+                        string[] tikfile = Directory.GetFiles(output, "*.tik");
+                        string[] tmdfile = Directory.GetFiles(output, "*.tmd");
+
+                        foreach (string appfile in appfiles)
+                            File.Delete(appfile);
+                        foreach (string cert in certfile)
+                            File.Delete(cert);
+                        foreach (string tik in tikfile)
+                            File.Delete(tik);
+                        foreach (string tmd in tmdfile)
+                            File.Delete(tmd);
+
+                        Wii.WadUnpack.UnpackWad(input, output);
+                        MessageBox.Show("Successfully unpacked Wad", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex) { ErrorBox(ex.Message); }
+                }
+            }
+            else
+            {
+                ErrorBox("Please enter input and output files!");
+            }
+
+            Environment.Exit(0);
+        }
+
+        private void ErrorBox(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void SwitchOver()
@@ -151,53 +292,53 @@ namespace Wii.cs_Tools
 
         private void btnUnPack_Click(object sender, EventArgs e)
         {
-            if (rbPack.Checked == true)
+            bool keyexists = true;
+            if (!File.Exists(Application.StartupPath + "\\common-key.bin") &&
+                !File.Exists(Application.StartupPath + "\\key.bin"))
             {
-                if (Directory.Exists(tbFolder.Text))
+                keyexists = false;
+                WadMii_KeyDialog keydlg = new WadMii_KeyDialog();
+
+                if (keydlg.ShowDialog() == DialogResult.OK)
                 {
-                    string newid = tbID.Text.ToUpper();
-                    bool goodid = true;
-                    if (cbChangeID.Checked == true)
+                    try
                     {
-                        if (tbID.Text.Length == 4)
+                        Wii.Tools.CreateCommonKey(keydlg.Input, Application.StartupPath);
+                        keyexists = true;
+                    }
+                    catch (Exception ex) { ErrorBox(ex.Message); }
+                }
+            }
+
+            if (keyexists == true)
+            {
+                if (rbPack.Checked == true)
+                {
+                    if (Directory.Exists(tbFolder.Text))
+                    {
+                        string newid = tbID.Text.ToUpper();
+                        bool goodid = true;
+                        if (cbChangeID.Checked == true)
                         {
-                            Regex allowedchars = new Regex("[A-Z0-9]{4}$");
-                            if (!allowedchars.IsMatch(newid))
+                            if (tbID.Text.Length == 4)
+                            {
+                                Regex allowedchars = new Regex("[A-Z0-9]{4}$");
+                                if (!allowedchars.IsMatch(newid))
+                                {
+                                    goodid = false;
+                                    tbID.Focus();
+                                    tbID.SelectAll();
+                                    ErrorBox("The Title ID is invalid!");
+                                }
+                            }
+                            else
                             {
                                 goodid = false;
-                                tbID.Focus();
-                                tbID.SelectAll();
-                                MessageBox.Show("The Title ID is invalid!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        }
-                        else
-                        {
-                            goodid = false;
-                            MessageBox.Show("Please enter a valid Title ID or uncheck the Checkbox!", "Enter Title ID", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        }
-                    }
-
-                    if (goodid == true)
-                    {
-                        bool keyexists = true;
-                        if (!File.Exists(Application.StartupPath + "\\common-key.bin") &&
-                            !File.Exists(Application.StartupPath + "\\key.bin"))
-                        {
-                            keyexists = false;
-                            WadMii_KeyDialog keydlg = new WadMii_KeyDialog();
-
-                            if (keydlg.ShowDialog() == DialogResult.OK)
-                            {
-                                try
-                                {
-                                    Wii.Tools.CreateCommonKey(keydlg.Input, Application.StartupPath);
-                                    keyexists = true;
-                                }
-                                catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                                MessageBox.Show("Please enter a valid Title ID or uncheck the Checkbox!", "Enter Title ID", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             }
                         }
 
-                        if (keyexists == true)
+                        if (goodid == true)
                         {
                             bool overwrite = true;
                             if (File.Exists(tbFile.Text))
@@ -235,61 +376,61 @@ namespace Wii.cs_Tools
 
                                         if (goodid == true)
                                         {
-
-                                            Wii.WadPack.PackWad(tbFolder.Text, tbFile.Text, true);
+                                            Wii.WadEdit.UpdateTmdContents(tmdfile[0]);
+                                            Wii.WadPack.PackWad(tbFolder.Text, tbFile.Text);
                                             MessageBox.Show("Successfully packed Wad", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                         }
                                     }
                                     catch (Exception ex)
                                     {
                                         if (File.Exists(tbFile.Text)) File.Delete(tbFile.Text);
-                                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        ErrorBox(ex.Message);
                                     }
                                 }
                                 else
                                 {
-                                    MessageBox.Show("At least one file is missing, the Wad cannot be packed!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    ErrorBox("At least one file is missing, the Wad cannot be packed!");
                                 }
                             }
                         }
                     }
-                }
-                else
-                {
-                    MessageBox.Show("The directory to pack doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            else
-            {
-                string wadfile = tbFolder.Text;
-                string wadfolder = tbFile.Text; //I know this is confusing :P
-
-                if (File.Exists(wadfile))
-                {
-                    if (!Directory.Exists(wadfolder)) Directory.CreateDirectory(wadfolder);
-                    bool overwrite = true;
-
-                    if (Directory.GetFiles(wadfolder, "*.app").Length > 0)
+                    else
                     {
-                        if (MessageBox.Show("At least one file to be unpacked might already exist.\nDo you want to overwrite?", "Overwrite?", MessageBoxButtons.OK, MessageBoxIcon.Question) == DialogResult.No)
-                        {
-                            overwrite = false;
-                        }
-                    }
-
-                    if (overwrite == true)
-                    {
-                        try
-                        {
-                            Wii.WadUnpack.UnpackWad(wadfile, wadfolder);
-                            MessageBox.Show("Successfully unpacked Wad", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                        ErrorBox("The directory to pack doesn't exist");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("The Wad file doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    string wadfile = tbFolder.Text;
+                    string wadfolder = tbFile.Text; //I know this is confusing :P
+
+                    if (File.Exists(wadfile))
+                    {
+                        if (!Directory.Exists(wadfolder)) Directory.CreateDirectory(wadfolder);
+                        bool overwrite = true;
+
+                        if (Directory.GetFiles(wadfolder, "*.app").Length > 0)
+                        {
+                            if (MessageBox.Show("At least one file to be unpacked might already exist.\nDo you want to overwrite?", "Overwrite?", MessageBoxButtons.OK, MessageBoxIcon.Question) == DialogResult.No)
+                            {
+                                overwrite = false;
+                            }
+                        }
+
+                        if (overwrite == true)
+                        {
+                            try
+                            {
+                                Wii.WadUnpack.UnpackWad(wadfile, wadfolder);
+                                MessageBox.Show("Successfully unpacked Wad", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            catch (Exception ex) { ErrorBox(ex.Message); }
+                        }
+                    }
+                    else
+                    {
+                        ErrorBox("The Wad file doesn't exist");
+                    }
                 }
             }
         }

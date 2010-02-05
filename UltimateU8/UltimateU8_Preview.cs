@@ -17,24 +17,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
 
-namespace Wii.cs_Tools
+namespace Wii
 {
-    static class Program
+    public partial class UltimateU8_Preview : Form
     {
-        /// <summary>
-        /// Der Haupteinstiegspunkt für die Anwendung.
-        /// </summary>
-        [STAThread]
-        static void Main(string[] args)
+        public UltimateU8_Preview()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            if (args.Length > 0)
-                Application.Run(new U8Mii_Main(args));
-            else
-                Application.Run(new U8Mii_Main());
+            InitializeComponent();
+        }
+
+        private void TplMii_Preview_Load(object sender, EventArgs e)
+        {
+            this.CenterToParent();
         }
     }
 }

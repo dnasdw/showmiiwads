@@ -1,19 +1,18 @@
-﻿/* This file is part of the Wii.cs Tools
+﻿/* This file is part of Wii.cs Tools
  * Copyright (C) 2009 Leathl
  * 
- * Wii.cs Tools is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * Wii.cs Tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Wii.cs Tools is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wii.cs Tools is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -31,6 +30,107 @@ namespace Wii.cs_Tools
             this.CenterToScreen();
             cmbFormat.SelectedIndex = 0;
             this.Icon = global::Wii.Properties.Resources.Wii_cs;
+        }
+
+        public TplMii_Main(string[] args)
+        {
+            InitializeComponent();
+            this.ShowInTaskbar = false;
+            this.WindowState = FormWindowState.Minimized;
+
+            string input = "";
+            string output = "";
+            int format = 6;
+
+            try
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    switch (args[i].ToLower())
+                    {
+                        case "-input":
+                            input = args[i + 1];
+                            break;
+                        case "-output":
+                            output = args[i + 1];
+                            break;
+                        case "-in":
+                            input = args[i + 1];
+                            break;
+                        case "-out":
+                            output = args[i + 1];
+                            break;
+                        case "-rgba8":
+                            format = 6;
+                            break;
+                        case "-rgb565":
+                            format = 4;
+                            break;
+                        case "-rgb5a3":
+                            format = 5;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorBox(ex.Message);
+                Environment.Exit(0);
+            }
+
+            if (!string.IsNullOrEmpty(input) && !string.IsNullOrEmpty(output))
+            {
+                if (File.Exists(input))
+                {
+                    if (input.EndsWith(".tpl")) //Tpl to Image
+                    {
+                        try
+                        {
+                            Image img = Wii.TPL.ConvertFromTPL(input);
+
+                            switch (output.Remove(0, output.LastIndexOf('.')))
+                            {
+                                case ".bmp":
+                                    img.Save(output, System.Drawing.Imaging.ImageFormat.Bmp);
+                                    break;
+                                case ".jpg":
+                                    img.Save(output, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                    break;
+                                case ".gif":
+                                    img.Save(output, System.Drawing.Imaging.ImageFormat.Gif);
+                                    break;
+                                default:
+                                    img.Save(output, System.Drawing.Imaging.ImageFormat.Png);
+                                    break;
+                            }
+                            MessageBox.Show("Successfully converted Tpl", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        catch (Exception ex) { ErrorBox(ex.Message); }
+                    }
+                    else //Image to Tpl
+                    {
+                        try
+                        {
+                            Image img = Image.FromFile(input);
+                            Wii.TPL.ConvertToTPL(img, output, format);
+                            MessageBox.Show("Successfully converted to Tpl", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        catch (Exception ex) { ErrorBox(ex.Message); }
+                    }
+                }
+                else
+                {
+                    ErrorBox("The file doesn't exist!");
+                }
+            }
+            else
+            {
+                ErrorBox("Please enter input and output files!");
+            }
+
+            Environment.Exit(0);
         }
 
         private void SwitchOver()
@@ -55,6 +155,11 @@ namespace Wii.cs_Tools
 
             tbTpl.Text = imagetext;
             tbImage.Text = tpltext;
+        }
+
+        private void ErrorBox(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void rbToTpl_CheckedChanged(object sender, EventArgs e)
@@ -152,12 +257,12 @@ namespace Wii.cs_Tools
                             Wii.Tools.SaveFileFromByteArray(tpl, tbTpl.Text);
                             MessageBox.Show("Successfully converted to Tpl", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                        catch (Exception ex) { ErrorBox(ex.Message); }
                     }
                 }
                 else
                 {
-                    MessageBox.Show("The Image doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ErrorBox("The Image doesn't exist");
                 }
             }
             else
@@ -197,12 +302,12 @@ namespace Wii.cs_Tools
                             }
                             MessageBox.Show("Successfully converted Tpl", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-                        catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                        catch (Exception ex) { ErrorBox(ex.Message); }
                     }
                 }
                 else
                 {
-                    MessageBox.Show("The Tpl doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ErrorBox("The Tpl doesn't exist");
                 }
             }
         }
@@ -231,11 +336,11 @@ namespace Wii.cs_Tools
 
                     preview.ShowDialog();
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                catch (Exception ex) { ErrorBox(ex.Message); }
             }
             else
             {
-                MessageBox.Show("The Tpl file doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ErrorBox("The Tpl file doesn't exist");
             }
         }
 

@@ -17,7 +17,7 @@
 
 namespace Wii
 {
-    partial class TplMii_Preview
+    partial class UltimateU8_Preview
     {
         /// <summary>
         /// Erforderliche Designervariable.
@@ -59,7 +59,7 @@ namespace Wii
             this.pbImage.TabIndex = 0;
             this.pbImage.TabStop = false;
             // 
-            // TplMii_Preview
+            // UltimateU8_Preview
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -69,9 +69,9 @@ namespace Wii
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(200, 200);
-            this.Name = "TplMii_Preview";
+            this.Name = "UltimateU8_Preview";
             this.ShowIcon = false;
-            this.Text = "TplMii Preview";
+            this.Text = "UltimateU8 Preview";
             this.Load += new System.EventHandler(this.TplMii_Preview_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).EndInit();
             this.ResumeLayout(false);

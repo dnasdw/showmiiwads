@@ -1,19 +1,18 @@
-﻿/* This file is part of the Wii.cs Tools
+﻿/* This file is part of Wii.cs Tools
  * Copyright (C) 2009 Leathl
  * 
- * Wii.cs Tools is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * Wii.cs Tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Wii.cs Tools is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wii.cs Tools is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -26,8 +25,12 @@ namespace UltimateU8
 {
     public partial class UltimateU8_Main : Form
     {
-        string TempPath = Path.GetTempPath() + "\\UltimateU8_Temp";
-        string openfile = "";
+        string TempPath = Path.GetTempPath() + "UltimateU8_Temp";
+        string OpenFile = "";
+        string TempExtension = "";
+        string TempFile = "";
+        string[] TempChannelTitles = new string[7];
+
 
         public UltimateU8_Main()
         {
@@ -40,6 +43,9 @@ namespace UltimateU8
         {
             if (Directory.Exists(TempPath)) try { Directory.Delete(TempPath, true); }
                 catch { }
+            if (File.Exists(TempFile)) try { File.Delete(TempFile); }
+                catch { }
+
             tvU8.KeyUp += new KeyEventHandler(UltimateU8_Main_KeyUp);
         }
 
@@ -76,6 +82,9 @@ namespace UltimateU8
         {
             if (Directory.Exists(TempPath)) try { Directory.Delete(TempPath, true); }
                 catch { }
+            if (File.Exists(TempFile)) try { File.Delete(TempFile); }
+                catch { }
+
         }
 
         private void ErrorBox(string message)
@@ -88,10 +97,18 @@ namespace UltimateU8
             MessageBox.Show(message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private string GetNodePath(TreeNode node)
+        {
+            if (node.FullPath.Length < 5) return TempPath;
+            else return               
+                TempPath + "\\" + node.FullPath.Remove(0, 5);
+        }
+
         private void AddNodes()
         {
 
             tvU8.BeginUpdate();
+            tvU8.Nodes.Clear();
             DirectoryInfo dirInfo = new DirectoryInfo(TempPath);
             TreeNode node = new TreeNode("Root");
             AddNodes(dirInfo, node);
@@ -120,6 +137,8 @@ namespace UltimateU8
                 for (int j = 0; j < subfileInfo.Length; j++)
                 {
                     TreeNode newNode = new TreeNode(subfileInfo[j].Name, 1, 1);
+                    if (Wii.U8.CheckU8(subfileInfo[j].FullName)) newNode.Tag = "U8";
+                    if (subfileInfo[j].Name.EndsWith(".tpl")) newNode.Tag = "TPL";
                     node.Nodes.Add(newNode);
                 }
             }
@@ -156,6 +175,7 @@ namespace UltimateU8
             {
                 int[] sizes = new int[3];
                 byte[] u8 = Wii.U8.PackU8(TempPath, out sizes[0], out sizes[1], out sizes[2]);
+                bool reallydoit = true;
 
                 if (cbLz77.Checked == true && cbLz77.Enabled == true) u8 = Wii.Lz77.Compress(u8);
 
@@ -164,6 +184,7 @@ namespace UltimateU8
                 else if (rbIMET.Checked == true)
                 {
                     ChannelNameBox.ChannelNameDialog cnd = new ChannelNameBox.ChannelNameDialog();
+                    cnd.Titles = TempChannelTitles;
                     cnd.FormCaption = "Enter Channel Titles";
                     cnd.btnCancelText = "Cancel";
 
@@ -172,10 +193,14 @@ namespace UltimateU8
                         string[] titles = cnd.Titles;
                         u8 = Wii.U8.AddHeaderIMET(u8, titles, sizes);
                     }
+                    else reallydoit = false;
                 }
 
-                Wii.Tools.SaveFileFromByteArray(u8, destination);
-                InfoBox(string.Format("Successfully packed U8 archive to:\n{0}", destination));
+                if (reallydoit == true)
+                {
+                    Wii.Tools.SaveFileFromByteArray(u8, destination);
+                    InfoBox(string.Format("Successfully packed U8 archive to:\n{0}", destination));
+                }
             }
             catch (Exception ex) { ErrorBox(ex.Message); }
         }
@@ -203,12 +228,27 @@ namespace UltimateU8
                     {
                         try
                         {
-                            tvU8.Nodes.Clear();
                             if (Directory.Exists(TempPath)) Directory.Delete(TempPath, true);
                             Wii.U8.UnpackU8(u8file, TempPath);
                             AddNodes();
-                            openfile = u8file;
                             tvU8.ExpandAll();
+                            OpenFile = u8file;
+                            TempExtension = "";
+                            TempChannelTitles = new string[7];
+
+                            switch (Wii.U8.DetectHeader(u8file))
+                            {
+                                case 1:
+                                    rbIMD5.Checked = true;
+                                    break;
+                                case 2:
+                                    rbIMET.Checked = true;
+                                    TempChannelTitles = Wii.WadInfo.GetChannelTitlesFromApp(u8file);
+                                    break;
+                                default:
+                                    rbNoHeader.Checked = true;
+                                    break;
+                            }
                         }
                         catch (Exception ex) { ErrorBox(ex.Message); }
                     }
@@ -250,6 +290,12 @@ namespace UltimateU8
                     }
                     else if (selectednode.ImageIndex == 1) //file
                     {
+                        if (selectednode.Tag == (object)"U8") cmOpenFile.Visible = true;
+                        else cmOpenFile.Visible = false;
+
+                        if (selectednode.Tag == (object)"TPL") cmPreview.Visible = true;
+                        else cmPreview.Visible = false;
+
                         cmFile.Show(MousePosition);
                     }
                 }
@@ -290,7 +336,7 @@ namespace UltimateU8
 
                 } while (exists == true);
 
-                Directory.CreateDirectory(TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4) + "\\New Folder" + index.ToString());
+                Directory.CreateDirectory(GetNodePath(tvU8.SelectedNode) + "\\New Folder" + index.ToString());
 
                 TreeNode newNode = new TreeNode("New Folder" + index.ToString(), 0, 0);
                 tvU8.SelectedNode.Nodes.Add(newNode);
@@ -298,7 +344,7 @@ namespace UltimateU8
                 tvU8.ExpandAll();
                 tvU8.Sort();
             }
-            catch { ErrorBox("An error occured"); }
+            catch (Exception ex){ ErrorBox(ex.Message); }
             finally { tvU8.EndUpdate(); }
         }
 
@@ -311,11 +357,13 @@ namespace UltimateU8
             {
                 tvU8.BeginUpdate();
                 string filename = ofd.FileName.Remove(0, ofd.FileName.LastIndexOf('\\') + 1);
-                string destination = TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4) + "\\" + filename;
+                string destination = GetNodePath(tvU8.SelectedNode) + "\\" + filename;
 
                 File.Copy(ofd.FileName, destination);
 
                 TreeNode newNode = new TreeNode(filename, 1, 1);
+                if (Wii.U8.CheckU8(destination)) newNode.Tag = "U8";
+                if (destination.EndsWith(".tpl")) newNode.Tag = "TPL";
                 tvU8.SelectedNode.Nodes.Add(newNode);
                 tvU8.Sort();
                 tvU8.EndUpdate();
@@ -327,7 +375,7 @@ namespace UltimateU8
             try
             {
                 tvU8.BeginUpdate();
-                string folder = TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4);
+                string folder = GetNodePath(tvU8.SelectedNode);
 
                 UltimateU8_InputBox ib = new UltimateU8_InputBox();
                 ib.isfolder = true;
@@ -349,7 +397,7 @@ namespace UltimateU8
             try
             {
                 tvU8.BeginUpdate();
-                Directory.Delete(TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4), true);
+                Directory.Delete(GetNodePath(tvU8.SelectedNode), true);
                 tvU8.SelectedNode.Remove();
                 tvU8.Sort();
             }
@@ -362,7 +410,7 @@ namespace UltimateU8
             try
             {
                 tvU8.BeginUpdate();
-                string file = TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4);
+                string file = GetNodePath(tvU8.SelectedNode);
 
                 UltimateU8_InputBox ib = new UltimateU8_InputBox();
                 ib.isfolder = false;
@@ -383,7 +431,7 @@ namespace UltimateU8
             try
             {
                 tvU8.BeginUpdate();
-                File.Delete(TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4));
+                File.Delete(GetNodePath(tvU8.SelectedNode));
                 tvU8.SelectedNode.Remove();
             }
             catch (Exception ex) { ErrorBox(ex.Message); }
@@ -392,13 +440,20 @@ namespace UltimateU8
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            SaveFile(openfile);
+            if (OpenFile.EndsWith(".temp") && !string.IsNullOrEmpty(TempExtension))
+                btnSaveAs_Click((object)"Temp", null);
+            else
+                SaveFile(OpenFile);
         }
 
         private void btnSaveAs_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "All|*.*";
+
+            if (sender == (object)"Temp" || (OpenFile.EndsWith(".temp") && !string.IsNullOrEmpty(TempExtension))) 
+                sfd.FileName = OpenFile.Replace(".temp", TempExtension).Remove(0, OpenFile.LastIndexOf('\\') + 1);
+            else sfd.FileName = OpenFile.Remove(0, OpenFile.LastIndexOf('\\') + 1);
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
@@ -410,12 +465,76 @@ namespace UltimateU8
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "All|*.*";
-            sfd.FileName = tvU8.SelectedNode.Text;
+            sfd.FileName = tvU8.SelectedNode.Text.Replace(".temp", "");
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
-                File.Copy(TempPath + tvU8.SelectedNode.FullPath.Remove(0, 4), sfd.FileName);
+                File.Copy(GetNodePath(tvU8.SelectedNode), sfd.FileName);
             }
+        }
+
+        private void cmOpenFile_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("This will close the current file and open the selected one, do you want to continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
+                {
+                    string tempfile = Path.GetTempPath() + tvU8.SelectedNode.Text.Remove(tvU8.SelectedNode.Text.LastIndexOf('.')) + ".temp";
+                    TempExtension = tvU8.SelectedNode.Text.Remove(0, tvU8.SelectedNode.Text.LastIndexOf('.'));
+                    
+                    if (File.Exists(TempFile)) File.Delete(TempFile);
+                    if (File.Exists(tempfile)) File.Delete(tempfile);
+                    TempFile = tempfile;
+                    OpenFile = tempfile;
+                    File.Copy(GetNodePath(tvU8.SelectedNode), tempfile);
+
+                    if (Directory.Exists(TempPath)) Directory.Delete(TempPath, true);
+                    Wii.U8.UnpackU8(tempfile, TempPath);
+                    AddNodes();
+                    tvU8.ExpandAll();
+                    TempChannelTitles = new string[7];
+
+                    switch (Wii.U8.DetectHeader(tempfile))
+                    {
+                        case 1:
+                            rbIMD5.Checked = true;
+                            break;
+                        case 2:
+                            rbIMET.Checked = true;
+                            TempChannelTitles = Wii.WadInfo.GetChannelTitlesFromApp(tempfile);
+                            break;
+                        default:
+                            rbNoHeader.Checked = true;
+                            break;
+                    }
+                }
+                catch (Exception ex) { ErrorBox(ex.Message); }
+            }
+        }
+
+        private void cmPreview_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Image img = Wii.TPL.ConvertFromTPL(GetNodePath(tvU8.SelectedNode));
+
+                Wii.UltimateU8_Preview preview = new Wii.UltimateU8_Preview();
+
+                if (img.Height > 150)
+                    preview.Height = img.Height + 50;
+                else
+                    preview.Height = 200;
+
+                if (img.Width > 150)
+                    preview.Width = img.Width + 50;
+                else
+                    preview.Width = 200;
+
+                preview.pbImage.Image = img;
+
+                preview.ShowDialog();
+            }
+            catch (Exception ex) { ErrorBox(ex.Message); }
         }
     }
 }

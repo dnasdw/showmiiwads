@@ -1,19 +1,18 @@
-﻿/* This file is part of the Wii.cs Tools
+﻿/* This file is part of Wii.cs Tools
  * Copyright (C) 2009 Leathl
  * 
- * Wii.cs Tools is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * Wii.cs Tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Wii.cs Tools is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wii.cs Tools is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 using System;
@@ -30,6 +29,88 @@ namespace Wii.cs_Tools
             InitializeComponent();
             this.CenterToScreen();
             this.Icon = global::Lz77Mii.Properties.Resources.Wii_cs;
+        }
+
+        public Lz77Mii_Main(string[] args)
+        {
+            InitializeComponent();
+            this.ShowInTaskbar = false;
+            this.WindowState = FormWindowState.Minimized;
+
+            string input = "";
+            string output = "";
+            bool compress = false;
+
+            try
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    switch (args[i])
+                    {
+                        case "-input":
+                            input = args[i + 1];
+                            break;
+                        case "-output":
+                            output = args[i + 1];
+                            break;
+                        case "-in":
+                            input = args[i + 1];
+                            break;
+                        case "-out":
+                            output = args[i + 1];
+                            break;
+                        case "-pack":
+                            compress = true;
+                            break;
+                        case "-compress":
+                            compress = true;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorBox(ex.Message);
+                Environment.Exit(0);
+            }
+
+            if (!string.IsNullOrEmpty(input) && !string.IsNullOrEmpty(output))
+            {
+                if (File.Exists(input) == true)
+                {
+                    try
+                    {
+                        if (compress == true)
+                        {
+                            Wii.Lz77.Compress(input, output);
+                            MessageBox.Show("Successfully compressed file", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            Wii.Lz77.Decompress(input, output);
+                            MessageBox.Show("Successfully decompressed file", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                    catch (Exception ex) { ErrorBox(ex.Message); }
+                }
+                else
+                {
+                    ErrorBox("The file doesn't exist!");
+                }
+            }
+            else
+            {
+                ErrorBox("Please enter input and output files!");
+            }
+
+            Environment.Exit(0);
+        }
+
+        private void ErrorBox(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void SwitchOver()
@@ -151,12 +232,12 @@ namespace Wii.cs_Tools
                             MessageBox.Show("Successfully decompressed file", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                    catch (Exception ex) { ErrorBox(ex.Message); }
                 }
             }
             else
             {
-                MessageBox.Show("The file doesn't exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ErrorBox("The file doesn't exist");
             }
         }
     }

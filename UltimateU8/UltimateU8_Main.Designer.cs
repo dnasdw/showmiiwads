@@ -1,19 +1,18 @@
-﻿/* This file is part of the Wii.cs Tools
+﻿/* This file is part of Wii.cs Tools
  * Copyright (C) 2009 Leathl
  * 
- * Wii.cs Tools is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * Wii.cs Tools is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * Wii.cs Tools is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Wii.cs Tools is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace UltimateU8
@@ -50,6 +49,7 @@ namespace UltimateU8
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UltimateU8_Main));
             this.IconList = new System.Windows.Forms.ImageList(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.btnSaveAs = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
@@ -74,6 +74,8 @@ namespace UltimateU8
             this.cmFileDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.cmFileExtract = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOpenFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmPreview = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.cmFolder.SuspendLayout();
@@ -89,6 +91,7 @@ namespace UltimateU8
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.btnSaveAs);
             this.panel1.Controls.Add(this.btnSave);
@@ -102,12 +105,22 @@ namespace UltimateU8
             this.panel1.Size = new System.Drawing.Size(138, 470);
             this.panel1.TabIndex = 2;
             // 
+            // label5
+            // 
+            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.label5.Location = new System.Drawing.Point(0, 419);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(129, 13);
+            this.label5.TabIndex = 7;
+            this.label5.Text = "Version 0.3";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
             // label4
             // 
             this.label4.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.label4.Location = new System.Drawing.Point(0, 378);
+            this.label4.Location = new System.Drawing.Point(0, 366);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(138, 47);
+            this.label4.Size = new System.Drawing.Size(138, 42);
             this.label4.TabIndex = 6;
             this.label4.Text = "Shortcuts:\r\nF2 - Rename\r\nDel - Delete";
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -223,7 +236,7 @@ namespace UltimateU8
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(4, 436);
+            this.label1.Location = new System.Drawing.Point(4, 439);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(129, 26);
             this.label1.TabIndex = 0;
@@ -292,9 +305,11 @@ namespace UltimateU8
             this.cmFileRename,
             this.cmFileDelete,
             this.toolStripSeparator2,
-            this.cmFileExtract});
+            this.cmFileExtract,
+            this.cmOpenFile,
+            this.cmPreview});
             this.cmFile.Name = "cmFile";
-            this.cmFile.Size = new System.Drawing.Size(131, 76);
+            this.cmFile.Size = new System.Drawing.Size(131, 120);
             // 
             // cmFileRename
             // 
@@ -321,6 +336,22 @@ namespace UltimateU8
             this.cmFileExtract.Size = new System.Drawing.Size(130, 22);
             this.cmFileExtract.Text = "Extract File";
             this.cmFileExtract.Click += new System.EventHandler(this.cmFileExtract_Click);
+            // 
+            // cmOpenFile
+            // 
+            this.cmOpenFile.Name = "cmOpenFile";
+            this.cmOpenFile.Size = new System.Drawing.Size(130, 22);
+            this.cmOpenFile.Text = "Open File";
+            this.cmOpenFile.Visible = false;
+            this.cmOpenFile.Click += new System.EventHandler(this.cmOpenFile_Click);
+            // 
+            // cmPreview
+            // 
+            this.cmPreview.Name = "cmPreview";
+            this.cmPreview.Size = new System.Drawing.Size(130, 22);
+            this.cmPreview.Text = "Preview";
+            this.cmPreview.Visible = false;
+            this.cmPreview.Click += new System.EventHandler(this.cmPreview_Click);
             // 
             // UltimateU8_Main
             // 
@@ -373,6 +404,9 @@ namespace UltimateU8
         private System.Windows.Forms.ToolStripMenuItem cmFileExtract;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ToolStripMenuItem cmOpenFile;
+        private System.Windows.Forms.ToolStripMenuItem cmPreview;
     }
 }
 
